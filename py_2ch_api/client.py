@@ -93,17 +93,39 @@ class ChAPI(GenericRequestProvider):
 
         return self.passcode_data
 
-    def get_board_threads(self, board: Board = None) -> List[Thread]:
+    def get_board_threads(
+        self,
+        board: Board = None,
+        tag: str = None,
+        subject: str = None,
+        limit: int = 1,
+    ) -> List[Thread]:
         """
         Get all threads from board
+
+        tag: filter by tag
+        subject: filter by subject
         """
 
         if not (board and self._is_board_exist(board)):
             board = self.board.board_id
 
-        threads = self.get(f"/{board}/catalog.json").threads
+        threads_response = self.get(f"/{board}/catalog.json").threads
+        threads = [Thread(thread_data) for thread_data in threads_response]
 
-        return [Thread(thread_data) for thread_data in threads]
+        if tag:
+            filtered_results = list(
+                filter(lambda thread: tag in thread.opening_post.tags, threads)
+            )
+            return filtered_results[:limit]
+
+        if subject:
+            filtered_results = list(
+                filter(lambda thread: subject in thread.subject, threads)
+            )
+            return filtered_results[:limit]
+
+        return threads
 
     def get_thread(self, thread: Optional[Thread] = None, board: Board = None):
         if isinstance(thread, Thread):
