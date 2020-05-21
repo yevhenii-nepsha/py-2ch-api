@@ -175,6 +175,28 @@ class ChAPI(GenericRequestProvider):
     def send_post(self):
         raise NotImplementedError
 
+    def get_all_media_from_thread(
+        self,
+        thread: Thread = None,
+        media_type: Optional[MEDIA_TYPE] = MEDIA_TYPE.MP4,
+    ):
+        posts = self.get_thread(thread)
+
+        media = [
+            item
+            for sublist in [post.files for post in posts if post.files]
+            for item in sublist
+        ]
+
+        if media_type:
+            media = [
+                file
+                for file in media
+                if FILE_TYPE().get(file.type) in media_type
+            ]
+
+        return media
+
     def download_all_media_from_thread(self):
         raise NotImplementedError
 
