@@ -121,7 +121,10 @@ class ChAPI(GenericRequestProvider):
 
         if subject:
             filtered_results = list(
-                filter(lambda thread: subject in thread.subject, threads)
+                filter(
+                    lambda thread: subject.lower() in thread.subject.lower(),
+                    threads,
+                )
             )
             return filtered_results[:limit]
 
